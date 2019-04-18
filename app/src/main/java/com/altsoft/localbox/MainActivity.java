@@ -1,27 +1,14 @@
 package com.altsoft.localbox;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
-
 import com.altsoft.framework.Global;
 import com.altsoft.framework.hander.BackPressCloseHandler;
 import com.altsoft.framework.hander.ChromeClient;
@@ -49,17 +36,38 @@ public class MainActivity extends BaseActivity {
 
     private void ComponentInit()
     {
-
+        mWebView = findViewById(R.id.webView);
         Global.getCommon().fullScreen();
+        mWebView.setInitialScale(1);
+        WebSettings webSettings = mWebView.getSettings();
+        webSettings.setPluginState(WebSettings.PluginState.ON);
+        mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+        });
+
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setAllowContentAccess(true);
+        webSettings.setEnableSmoothTransition(true);
+        webSettings.setLoadsImagesAutomatically(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setSupportZoom(false);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setAppCacheEnabled(true);
+        webSettings.setSupportMultipleWindows(true);
         backPressCloseHandler = new BackPressCloseHandler(this);
-        mWebView = (WebView) findViewById(R.id.webView);
+
         mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        mWebView.getSettings().setJavaScriptEnabled(true);
+
         mWebView.addJavascriptInterface(new WebBridge(),"java");
         // 뷰 가속 - 가속하지 않으면 영상실행 안됨, 소리만 나온다
         mWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         mWebView.setWebChromeClient(new ChromeClient(this){});
-        mWebView.setWebViewClient(new WebViewClientClass(){});
+
     }
 
 
@@ -70,16 +78,6 @@ public class MainActivity extends BaseActivity {
             mWebView.goBack();
         }else{
             backPressCloseHandler.onBackPressed();
-        }
-    }
-
-
-    private class WebViewClientClass extends WebViewClient {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Log.d("check URL",url);
-            view.loadUrl(url);
-            return true;
         }
     }
 
